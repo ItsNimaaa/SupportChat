@@ -1,0 +1,11 @@
+name: SupportChat
+version: 1.0
+author: ItsNimaaa
+main: me.styx.main.Main
+description: Easy Support for players! LiveChat!
+
+commands:
+  support:
+    description: Lists all commands for the plugin!
+    usage: </command>
+    aliases: [supp]
