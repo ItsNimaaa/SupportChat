@@ -1,0 +1,51 @@
+package me.styx.main;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.bukkit.plugin.java.JavaPlugin;
+
+import me.styx.support.SupportCommand;
+import me.styx.util.FileManagerSystem;
+
+
+public class Main extends JavaPlugin {
+
+	@Override
+	public void onEnable() {
+		instance = this;
+		this.registerCommands();
+		this.registerEvents();
+		FileManagerSystem.createStandardConfig();
+		FileManagerSystem.fetchData();
+		System.out.println("[SupportChat] Plugin version: " + this.getDescription().getVersion() + " by ItsNimaaa enabled!");
+	}
+	
+	@Override
+	public void onDisable() {
+		System.out.println("[SupportChat] Plugin disabled!");
+	}
+	
+	private void registerEvents() {
+		this.getServer().getPluginManager().registerEvents(new de.lonzbonz.supportchat.listener.PlayerListener(this), this);
+		this.getServer().getPluginManager().registerEvents(new de.lonzbonz.supportchat.listener.ChatListener(this), this);
+	}
+	
+	private void registerCommands() {
+		getCommand("support").setExecutor(new SupportCommand(this));
+	}
+	
+	public String prefix;
+	public static Main instance;
+	public String supporterPermission;
+	public List<String> needHelp = new LinkedList<String>();
+	public List<String> onlineSupporters = new ArrayList<String>();
+	public HashMap<String, String> supportChat = new HashMap<>();
+	
+	
+	public static Main getInstance() {
+		return instance;
+	}
+}
