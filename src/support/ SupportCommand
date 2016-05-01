@@ -1,0 +1,98 @@
+package me.styx.support;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+public class SupportCommand implements CommandExecutor {
+
+	private me.styx.main.Main plugin;
+	
+	public SupportCommand(me.styx.main.Main main) {
+		this.plugin = main;
+	}
+	
+
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		if(!(sender instanceof Player)) {
+			sender.sendMessage("You must be a player");
+			return true;
+		}
+		Player p = (Player) sender;
+		if(args.length == 0) {
+			if(!plugin.needHelp.contains(p.getName())) {
+				plugin.needHelp.add(p.getName());
+				p.sendMessage(plugin.prefix + "§eYou requested help! Please wait a moment until one of our Supporters are available!");
+				for(String suppString : plugin.onlineSupporters) {
+					Player supporter = Bukkit.getPlayer(suppString);
+					if(supporter == null) return true;
+					supporter.sendMessage(plugin.prefix + "§c" + p.getName() + " §brequested help! §a/support accept " + p.getName() + " §bto help them!");
+				}
+			} else {
+				p.sendMessage(plugin.prefix + "§cYou have already requested help!");
+			}
+		} else if(args.length == 2) {
+			if(p.hasPermission(plugin.supporterPermission)) {
+				if(args[0].equalsIgnoreCase("accept")) {
+					Player target = Bukkit.getPlayer(args[1]);
+					if(target != null) {
+						if(plugin.needHelp.contains(target.getName())) {
+							if(!plugin.supportChat.containsKey(p.getName())) {
+								plugin.needHelp.remove(target.getName());
+								plugin.supportChat.put(p.getName(), target.getName());
+								plugin.supportChat.put(target.getName(), p.getName());
+								target.sendMessage(plugin.prefix + "§eYou are now getting Supported by " + p.getName());
+								p.sendMessage(plugin.prefix + "§eYou are now Supporting " + target.getName());
+							} else {
+								p.sendMessage(plugin.prefix + "§cYou are already in a LiveChat with a player!");
+							}
+						} else {
+							p.sendMessage(plugin.prefix + "§cThis player is currently not needing help!");
+						}
+					} else {
+						p.sendMessage(plugin.prefix + "§cThat player is not online!");
+					}
+				} else if(args[0].equalsIgnoreCase("close")) {
+					Player target = Bukkit.getPlayer(args[1]);
+					if(target != null) {
+						if(plugin.supportChat.containsKey(p.getName()) && plugin.supportChat.containsValue(target.getName())) {
+							plugin.supportChat.remove(p.getName());
+							plugin.supportChat.remove(target.getName());
+							target.sendMessage(plugin.prefix + "§eYou are no longer in a LiveChat!");
+							p.sendMessage(plugin.prefix + "§eYou are no longer in a LiveChat!");
+						} else {
+							p.sendMessage(plugin.prefix + "§cYou are not supporting this player!");
+						}
+					} else {
+						p.sendMessage(plugin.prefix + "§cThis player is not online!");
+					}
+				} else if(args[0].equalsIgnoreCase("deny")) {
+					Player target = Bukkit.getPlayer(args[1]);
+					if(target != null) {
+						if(plugin.needHelp.contains(target.getName())) {
+							plugin.needHelp.remove(target.getName());
+							target.sendMessage(plugin.prefix + "§eYour request was denied! Submit another one if you want to.");
+							p.sendMessage(plugin.prefix + "§eYou have just denied " + target.getName() + "'s LiveChat request!");
+						} else {
+							p.sendMessage(plugin.prefix + "§cThis player has not requeset help!");
+						}
+					} else {
+						p.sendMessage(plugin.prefix + "§cThis player is not online!");
+					}
+				} else {
+					p.sendMessage(plugin.prefix + "§cWrong Syntax!");
+				}
+			} else {
+				p.sendMessage(plugin.prefix + "§cYou don't have permission!");
+			}
+		} else {
+			p.sendMessage(plugin.prefix + "§cWrong Syntax!");
+		}
+		
+		return true;
+	}
+}
