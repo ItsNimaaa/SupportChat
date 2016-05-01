@@ -1,0 +1,29 @@
+package me.styx.listener.ChatListener
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+
+
+public class ChatListener implements Listener {
+
+	private me.styx.main.Main plugin;
+	
+	public ChatListener(me.styx.main.Main main) {
+		this.plugin = main;
+	}
+	
+	@EventHandler
+	public void onChat(AsyncPlayerChatEvent e) {
+		Player p = e.getPlayer();
+		
+		if(plugin.supportChat.containsKey(p.getName())) {
+			Player target = Bukkit.getPlayer(plugin.supportChat.get(p.getName()));
+			e.setCancelled(true);
+			p.sendMessage("§b§lSUPPORT §8» §a" + p.getName() + " §7-> §c" + target.getName() + "§r: " + e.getMessage());
+			target.sendMessage("§b§lSUPPORT §8» §a" + p.getName() + " §7-> §c" + target.getName() + "§r: " + e.getMessage());
+		}
+	}
+}
